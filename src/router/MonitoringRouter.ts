@@ -12,7 +12,9 @@ class MonitoringRouter {
     }
 
     private configureRoutes() {
-        this.router.get('/status', async (request, response) => {
+        const cors = require('cors')
+
+        this.router.get('/status', cors(), async (request, response) => {
             const result = this.controller.getStatusOfServers().then(e => {
                 return response.status(200).json(e);
             });
