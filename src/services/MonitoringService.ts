@@ -1,7 +1,8 @@
 import ServerRepository from '../repositories/ServerRepository';
 import '../model/ServerStatus';
 import {ServerStatus} from "../model/ServerStatus";
-import {AxiosResponse, AxiosError} from "axios";
+import axios, {AxiosError} from "axios";
+import {AxiosResponse} from 'axios'
 
 class MonitoringService {
 
@@ -15,26 +16,27 @@ class MonitoringService {
         this.repository.removeServer(url);
     }
 
-    getStatusOfServers() {
+    getStatusOfServers = async () => {
         const servers = this.repository.getServers;
         let statusList: Array<ServerStatus> = [];
-        servers.forEach(server => {
-            let status = this.getStatusOfServer(server);
-            statusList.push(status);
-        })
-        return statusList;
-    }
 
-    async getStatusOfServer(url: string) {
         const axios = require('axios');
-        axios.get(url)
-            .then((response: AxiosResponse) => {
-                return new ServerStatus(url, response.status.toString(), response.statusText)
+        await Promise.all(servers.map(server =>
+            axios.get(server).then((response: AxiosResponse) => {
+                let status = new ServerStatus(server, response.status, response.statusText);
+                statusList.push(status);
+            }).catch((error: AxiosError) => {
+                if (error.response) {
+                    let status = new ServerStatus(server, error.response.status, error.response.statusText);
+                    statusList.push(status);
+                } else {
+                    let status = new ServerStatus(server, 404, error.code!);
+                    statusList.push(status);
+                }
             })
-            .catch((error: AxiosError) => {
-                const errorCode:string = error.code as string;
-                return new ServerStatus(url, errorCode, error.message)
-            });
+        ));
+
+        return statusList;
     }
 }
 

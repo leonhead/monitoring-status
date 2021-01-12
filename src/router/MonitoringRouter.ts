@@ -1,5 +1,6 @@
 import {Router} from "express";
 import MonitoringController from '../controller/MonitoringController'
+import axios from "axios";
 
 class MonitoringRouter {
 
@@ -11,9 +12,10 @@ class MonitoringRouter {
     }
 
     private configureRoutes() {
-        this.router.get('/status', (request, response) => {
-            const result = this.controller.statusOfServers();
-            response.status(200).json(result)
+        this.router.get('/status', async (request, response) => {
+            const result = this.controller.getStatusOfServers().then(e => {
+                return response.status(200).json(e);
+            });
         });
 
         this.router.post('/status/remove', (request, response) => {

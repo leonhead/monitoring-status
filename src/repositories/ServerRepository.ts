@@ -4,7 +4,7 @@ class ServerRepository {
 
     constructor() {
         this.addServer('http://127.0.0.1:8080')
-       // this.addServer('http://127.0.0.1:80')
+        this.addServer('http://127.0.0.1:80')
     }
 
     addServer(url: string){
